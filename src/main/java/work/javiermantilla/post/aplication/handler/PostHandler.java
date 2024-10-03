@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import work.javiermantilla.post.aplication.dto.PostDto;
 import work.javiermantilla.post.aplication.mapper.PostDtoMapper;
+import work.javiermantilla.post.aplication.validation.ObjectValidator;
 import work.javiermantilla.post.domain.ports.in.PostUseCasePortIn;
 
 @Component
@@ -21,23 +22,32 @@ public class PostHandler {
 
 	private final PostUseCasePortIn postUseCasePortIn;
 	private final PostDtoMapper postDtoMapper;
+	private final ObjectValidator objectValidator;
 
 	public Mono<ServerResponse> listPosts(ServerRequest serverRequest) {
 		log.info(serverRequest.headers().toString());
-		Flux<PostDto> allPosts = postUseCasePortIn.listPosts().map(postDtoMapper::toPostDto)
+		Flux<PostDto> allPosts = postUseCasePortIn.listPosts()
+				.map(postDtoMapper::toPostDto)
 				.switchIfEmpty(Flux.empty());
 
-		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(allPosts, PostDto.class)
+		return ServerResponse.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(allPosts, PostDto.class)
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
 	public Mono<ServerResponse> savePost(ServerRequest serverRequest) {
-
-		Mono<PostDto> postDtoMono = serverRequest.bodyToMono(PostDto.class);
+		Mono<PostDto> postDtoMono = serverRequest.bodyToMono(PostDto.class)
+				.doOnNext(objectValidator::validate);
 		return postDtoMono
-				.flatMap(postDto -> ServerResponse.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON)
-						.body(postUseCasePortIn.savePost(postDtoMapper.toPostModel(postDto)), PostDto.class)
-						.switchIfEmpty(ServerResponse.notFound().build()));
+				.flatMap(postDto -> 
+						ServerResponse.status(HttpStatus.CREATED)
+						.contentType(MediaType.APPLICATION_JSON)
+						.body(
+							postUseCasePortIn.savePost(postDtoMapper.toPostModel(postDto)), 
+							PostDto.class
+							)
+				.switchIfEmpty(ServerResponse.notFound().build()));
 	}
 
 	public Mono<ServerResponse> getOne(ServerRequest request) {		
@@ -45,7 +55,8 @@ public class PostHandler {
 				.map(postDtoMapper::toPostDto);		
 		return ServerResponse.ok()
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(postDto, PostDto.class);
+				.body(postDto, PostDto.class)
+				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
 }

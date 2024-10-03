@@ -36,8 +36,7 @@ public class PostUseCaseService implements PostUseCasePortIn {
 
 	@Override
 	public Mono<PostModel> getByIdPost(String id) {		
-		return postRepositoryPortOut.getById(id)
-			.switchIfEmpty(Mono.error(new RuntimeException("Post Not Exist")))	;
+		return postRepositoryPortOut.getById(id);
 	}
 
 }
