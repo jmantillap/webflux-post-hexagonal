@@ -16,4 +16,12 @@ public class PostDto {
 	private String body;	
 	private LocalDateTime createdOn;	
 	private LocalDateTime updatedOn;
+	public PostDto(String title, String description, String body) {
+		super();
+		this.title = title;
+		this.description = description;
+		this.body = body;
+		
+	}
+	
 }

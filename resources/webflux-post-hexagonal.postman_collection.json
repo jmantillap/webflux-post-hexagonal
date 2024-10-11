@@ -1,0 +1,77 @@
+{
+	"info": {
+		"_postman_id": "fcd6a7ce-e2b0-459f-adba-01cc90d7fa55",
+		"name": "webflux-post-hexagonal",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22646572"
+	},
+	"item": [
+		{
+			"name": "listPosts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8088/api/post",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"api",
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPost",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8088/api/post/66fdf9de80057375945fdcae",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"api",
+						"post",
+						"66fdf9de80057375945fdcae"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "savePost",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"titulo\",\r\n    \"description\": \"Descripcion\",\r\n    \"body\": \"body\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8088/api/post",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"api",
+						"post"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

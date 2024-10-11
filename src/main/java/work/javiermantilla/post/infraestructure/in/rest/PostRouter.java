@@ -33,8 +33,8 @@ public class PostRouter {
 	                .GET(PATH, handler::listPosts)
 	                .POST(PATH, handler::savePost)
 	                .GET(PATH_VARIABLE, handler::getOne)	                
-//	                .PUT(PATH_VARIABLE, handler::update)
-//	                .DELETE(PATH_VARIABLE, handler::delete)
+	                .PUT(PATH_VARIABLE, handler::updatePost)
+	                .DELETE(PATH_VARIABLE, handler::deletePost)
 	                .build();
 	 }
 }

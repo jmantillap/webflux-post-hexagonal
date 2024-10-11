@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import work.javiermantilla.post.aplication.dto.PostDto;
 import work.javiermantilla.post.aplication.mapper.PostDtoMapper;
 import work.javiermantilla.post.aplication.validation.ObjectValidator;
+import work.javiermantilla.post.domain.model.PostModel;
 import work.javiermantilla.post.domain.ports.in.PostUseCasePortIn;
 
 @Component
@@ -51,12 +52,45 @@ public class PostHandler {
 	}
 
 	public Mono<ServerResponse> getOne(ServerRequest request) {		
-		Mono<PostDto> postDto = postUseCasePortIn.getByIdPost(request.pathVariable("id"))
-				.map(postDtoMapper::toPostDto);		
-		return ServerResponse.ok()
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(postDto, PostDto.class)
-				.switchIfEmpty(ServerResponse.notFound().build());
+//		Mono<PostDto> postDto1 = postUseCasePortIn.getByIdPost(request.pathVariable("id"))
+//				.map(postDtoMapper::toPostDto);		
+//		return ServerResponse.ok()
+//				.contentType(MediaType.APPLICATION_JSON)
+//				.body(postDto, PostDto.class)
+//				.switchIfEmpty(ServerResponse.notFound().build());
+		return postUseCasePortIn.getByIdPost(request.pathVariable("id"))
+				.flatMap(p->{
+						Mono<PostDto> postDto= Mono.just(postDtoMapper.toPostDto(p));
+						return ServerResponse.ok()
+								.contentType(MediaType.APPLICATION_JSON)
+								.body(postDto,PostDto.class) 
+								.switchIfEmpty(ServerResponse.notFound().build());
+				});
 	}
+	
+	public Mono<ServerResponse> updatePost(ServerRequest request) {
+		String id= request.pathVariable("id");
+		Mono<PostDto> postDtoMono = request.bodyToMono(PostDto.class)
+									.doOnNext(objectValidator::validate);
+				
+		return postDtoMono.flatMap(p->{
+					Mono<PostModel> postUpdate= postUseCasePortIn
+									.updatePost(postDtoMapper.toPostModel(p),id);
+					return ServerResponse.status(HttpStatus.OK)
+							.contentType(MediaType.APPLICATION_JSON)
+						.body(postUpdate,PostDto.class)
+						.switchIfEmpty(ServerResponse.notFound().build());
+		});
+	}
+	
+	 public Mono<ServerResponse> deletePost(ServerRequest serverRequest) {
+	        String id = serverRequest.pathVariable("id");
+	        Mono<ServerResponse> notFound = ServerResponse.notFound().build();
+	        return ServerResponse
+	                .status(HttpStatus.NO_CONTENT)
+	                .build(postUseCasePortIn.deletePost(id))
+	                .switchIfEmpty(notFound);
+	    }
+	
 
 }
